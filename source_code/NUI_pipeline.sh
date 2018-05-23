@@ -242,7 +242,7 @@ cat temp2.1.fa temp2.2.fa | paste - - | awk 'length($2)>=50 {print $0}'|tr '\t' 
 rm temp2.1.fa temp2.2.fa
 
 # Mask the NUIs
-RepeatMasker --species human -pa 32 NUI.fa 
+RepeatMasker --species human -pa "$CORES" NUI.fa 
 
 # Remove sequences with low complexity using dustmasker
 # Dustmasker is more stringent that repeatMasker
