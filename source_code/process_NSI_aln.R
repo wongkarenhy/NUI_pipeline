@@ -54,25 +54,22 @@ for (i in 1:length(name)){
   
   # lots of special cases that we need to consider
   # if df only has 1 line (anchor only on one side), discard
-  # if df contains more or equal to three chromosomes, discard
+  # if df aligns to >= 3 chromosomes, discard
   if ((nrow(df) == 1) | (length(unique(df$chr)) >= 3)) next
   else{
     
-    #Ranges: if one range completely overlaps another, we need to remove the inner alignment
+    #Ranges: if one range completely overlaps another, discard the inner alignment
     discard = NULL
     if (nrow(df) > 2){
       
       firstPos = which(df$start2==min(df$start2))
       lastPos = which(df$end2==max(df$end2))
       
-      #If df has no alignment that starts at 1 nor end at length(size2), discard
+      #If df has no alignment that starts at 1 or ends at the last position, discard
       if ((length(firstPos)==0) & (length(lastPos)==0)) {
         discard = df[1:nrow(df),7:8]
       }
-      
-      #If there is only one 1 and one 2200, use those alignments as the anchoring alignments. 
-      #Then compare the non-anchoring ones to the anchoring ones to see if there is any complete overlap
-      #Only the complete overlaps are removed
+
       if ((length(firstPos)==1) & (length(lastPos)==1)){
         left_anchor = df[firstPos,7:8]
         right_anchor = df[lastPos, 7:8]
@@ -89,7 +86,7 @@ for (i in 1:length(name)){
           }
         }
       }
-      #If two sequences have the same starting point, choose the one that is the longest
+      #If two sequences have the same starting position, choose the one that is the longest
       else if ((length(firstPos)>1) & nrow(df)==3){
         left_anchor = df[firstPos[1],7:8]
         test_anchor = df[firstPos[2], 7:8]
@@ -97,7 +94,7 @@ for (i in 1:length(name)){
           discard = test_anchor
         } else discard = left_anchor
       }
-      #If two sequences have the same ending point, choose the one that is the longest
+      #If two sequences have the same ending position, choose the one that is the longest
       else if ((length(lastPos)>1) & nrow(df)==3){
         right_anchor = df[lastPos[1], 7:8]
         test_anchor = df[lastPos[2],7:8]
@@ -107,7 +104,7 @@ for (i in 1:length(name)){
       }
     }
     
-    #Remove the discard alignment from df
+    #Remove the discard alignments from df
     if (!is.null(discard)){
       df = df[which(!(df$start2 %in% discard$start2 & df$end2 %in% discard$end2)),]
     }
@@ -130,7 +127,7 @@ for (i in 1:length(name)){
     } else {
         df_1 = df
         df_2 = NULL
-        #Split the 3 liners into 2 under the following conditions: all three alns align to the same chr and same strand
+        #Split the 3 liners into 2 under the following conditions: all three alignments align to the same chr and same strand
         if ((nrow(df)==3) & (length(unique(df$chr))==1) & (length(unique(df$strand2))==1)){
           df = df_1[1:2,]
           df_2 = df_1[2:3,]
@@ -177,7 +174,7 @@ for (i in 1:length(analysis_name)){
         size = abs(ref_gap_size - query_gap_size)
         type = NULL
         
-        #Calculate ratio and put the alignments in the proper categories.
+        #Calculate ratio of query_gap_size/ref_gap_size
         if (ref_gap_size_ratio > 0 & query_gap_size_ratio > 0) {
             ratio = query_gap_size_ratio/ref_gap_size_ratio
             if (ratio >=1.5) {
@@ -220,8 +217,8 @@ for (i in 1:length(analysis_name)){
 DF_SV = as.data.frame(DF_SV, stringsAsFactors = F)
 colnames(DF_SV) = c("ref_chr", "ref_start", "ref_end", "ID", "size", "strand", "type", "ref_gap_size", "query_gap_size", "query_breakpoint_coord", "pseudohap", "sample")
 
-# make sure there is no duplicates
-# remove NSI if it anchors to chrY
+# make sure there are no duplicates
+# remove NUI if it anchors to chrY
 DF_SV = DF_SV[(!(duplicated(DF_SV[,c('ref_start','ref_end')])) & DF_SV$ref_chr != "Y"),]
 
 #Put blackList and segDup in GRange objects
@@ -230,7 +227,7 @@ segDup.gr = GRanges(segDup)
 SV.gr = GRanges(seqnames = Rle(as.character(DF_SV$ref_chr)), IRanges(start = as.numeric(DF_SV$ref_start), end = as.numeric(DF_SV$ref_end)))
 elementMetadata(SV.gr) = DF_SV$ID  
 
-#Remove SVs in the black list and the segDup list
+#Remove SVs in the blackList and the segDup list
 ov1 = findOverlaps(SV.gr,blackList.gr, type = "any")
 ov2 = findOverlaps(SV.gr,segDup.gr, type = "any")
 discard = unique(sort(c(ov1@from, ov2@from)))
