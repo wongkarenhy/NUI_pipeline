@@ -1,8 +1,7 @@
 library(GenomicRanges)
 library(stringr)
 
-#sample_list = c("NA19068", "NA19440", "HG00250", "HG00851", "HG03115", "HG00353", "HG03838", "NA20587", "HG01971", "HG02623", "NA19789", "NA21125", "NA18552", "NA19921", "HG00512", "HG00733", "NA19240")
-sample_list = c("HG00250", "HG00353")
+sample_list = c("NA19068", "NA19440", "HG00250", "HG00851", "HG03115", "HG00353", "HG03838", "NA20587", "HG01971", "HG02623", "NA19789", "NA21125", "NA18552", "NA19921", "HG00512", "HG00733", "NA19240")
 
 SV_meta = NULL
 total_SV_per_individual = NULL
@@ -25,7 +24,7 @@ uniq_breakpoints$ref_end_diff = c(NA,diff(uniq_breakpoints$ref_end))
 discard = which(abs(uniq_breakpoints$ref_start_diff)< 50 & abs(uniq_breakpoints$ref_end_diff)<50)
 uniq_breakpoints = uniq_breakpoints[-discard,1:13]
 
-#Get rid of duplicated sampels
+#Get rid of duplicated lines
 #--------Determine who has what breakpoints--------------
 count = NULL
 for (i in 1:nrow(uniq_breakpoints)){
