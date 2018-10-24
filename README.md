@@ -6,7 +6,7 @@ sambamba v0.5.9 <br>
 bedtools v2.17.0 <br>
 seqtk subseq v1.0 <br>
 FASTX Toolkit v0.0.14 <br>
-samblaster v0.1.24 (Source code was modified to redirect the fastq output to stdout) <br>
+samblaster v0.1.24 (Source code was modified to redirect the fastq output to stdout. Please use the samblaster.cpp script provided in this repo before compiling) <br>
 bwa v0.7.15
 
 **R packages:** <br>
